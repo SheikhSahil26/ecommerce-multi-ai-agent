@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "ecommerce_agent": "ecommerce_ai.graph.graph:app_graph"
+  },
+  "env": ".env"
+}
