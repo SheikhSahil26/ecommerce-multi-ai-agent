@@ -22,7 +22,7 @@ from ecommerce_ai.graph.nodes import (
 
 from ecommerce_ai.graph.routers import route_next_task
 from ecommerce_ai.graph.state import EcommerceState
-
+from ecommerce_ai.memory.checkpointer import checkpointer
 
 def build_graph():
 
@@ -182,7 +182,7 @@ def build_graph():
     # Compile
     # --------------------------------------------------
 
-    return graph.compile()
+    return graph.compile(checkpointer=checkpointer)
 
 
 # ======================================================
