@@ -19,7 +19,7 @@ async def main():
             {
                 "messages": [
                     HumanMessage(
-                        content="hello"
+                        content="best smartphones under 30000"
                     )
                 ]
             }

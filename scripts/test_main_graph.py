@@ -9,7 +9,8 @@ from ecommerce_ai.graph.graph import build_graph
 from ecommerce_ai.classifiers.intent_classifier import (
     IntentClassifier,
 )
-
+from ecommerce_ai.agents.shopping.graph import create_shopping_graph
+from ecommerce_ai.repositories.shopping_repository import ShoppingRepository
 
 async def main():
 
@@ -21,10 +22,12 @@ async def main():
 
         # 2. Create Product Graph
         product_graph = create_product_graph(repository)
+        shopping_graph = create_shopping_graph(repository,ShoppingRepository)
 
         # 3. Create Main Graph
         app_graph = build_graph(
             product_graph,
+            
             classifier,
         )
 
@@ -33,7 +36,7 @@ async def main():
             {
                 "messages": [
                     HumanMessage(
-                        content="hello"
+                        content="show me best gaming laptops and also my current cart status."
                     )
                 ]
             }
