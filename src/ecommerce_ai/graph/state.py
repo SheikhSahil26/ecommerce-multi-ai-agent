@@ -1,13 +1,13 @@
-from typing import Literal, TypedDict
+from typing import Literal
+
+from langgraph.graph import MessagesState
 
 
-class EcommerceState(TypedDict):
-    user_input: str
+class EcommerceState(MessagesState):
     intent: Literal[
         "product",
         "shopping",
         "order",
         "support",
         "unknown",
-    ]
-    response: str
+    ] | None

@@ -1,74 +1,82 @@
+from ecommerce_ai.classifiers.intent_classifier import IntentClassifier
 from ecommerce_ai.graph.state import EcommerceState
+from langchain_core.messages import AIMessage, HumanMessage
 
 
-def classify_request(state:EcommerceState)->dict:
-    user_input = state["user_input"].lower()
+def create_classify_request_node(
+    classifier: IntentClassifier,
+):
+    async def classify_request(
+        state: EcommerceState,
+    ) -> dict:
 
-    if any(word in user_input for word in [
-        "product",
-        "laptop",
-        "phone",
-        "mobile",
-        "computer",
-        "price",
-        "buy",
-    ]):
-        return {"intent": "product"}
+        user_input = state["messages"][-1].content
 
-    if any(word in user_input for word in [
-        "cart",
-        "add",
-        "remove",
-        "checkout",
-    ]):
-        return {"intent": "shopping"}
+        result = await classifier.classify(user_input)
 
-    if any(word in user_input for word in [
-        "order",
-        "delivery",
-        "track",
-        "shipment",
-    ]):
-        return {"intent": "order"}
+        return {
+            "intent": result.intent,
+        }
 
-    if any(word in user_input for word in [
-        "return",
-        "refund",
-        "damaged",
-        "complaint",
-        "issue",
-    ]):
-        return {"intent": "support"}
-
-    return {"intent": "unknown"}
+    return classify_request
 
 
+def create_product_node(product_graph):
 
-def product_node(state: EcommerceState) -> dict:
-    return {
-        "response": "Product workflow selected."
-    }
+    async def product_node(
+        state: EcommerceState,
+    ) -> dict:
+
+        existing_messages = state["messages"]
+
+        result = await product_graph.ainvoke(
+            {
+                "messages": existing_messages
+            }
+        )
+
+        new_messages = result["messages"][
+            len(existing_messages):
+        ]
+
+        return {
+            "messages": new_messages
+        }
+
+    return product_node
 
 
 def shopping_node(state: EcommerceState) -> dict:
     return {
-        "response": "Shopping workflow selected."
+        "messages": [
+            AIMessage(
+                content="Shopping workflow is not implemented yet."
+            )
+        ]
     }
-
-
 def order_node(state: EcommerceState) -> dict:
     return {
-        "response": "Order workflow selected."
+        "messages": [
+            AIMessage(
+                content="Order workflow is not implemented yet."
+            )
+        ]
     }
-
 
 def support_node(state: EcommerceState) -> dict:
     return {
-        "response": "Support workflow selected."
+        "messages": [
+            AIMessage(
+                content="Support workflow is not implemented yet."
+            )
+        ]
     }
-
 
 def unknown_node(state: EcommerceState) -> dict:
     return {
-        "response": "I could not understand the request."
+        "messages": [
+            AIMessage(
+                content="I could not understand your request."
+            )
+        ]
     }

@@ -1,9 +1,9 @@
 from langgraph.graph import END, START, StateGraph
 
 from ecommerce_ai.graph.nodes import (
-    classify_request,
+    create_classify_request_node,
+    create_product_node,
     order_node,
-    product_node,
     shopping_node,
     support_node,
     unknown_node,
@@ -11,21 +11,49 @@ from ecommerce_ai.graph.nodes import (
 from ecommerce_ai.graph.routers import route_request
 from ecommerce_ai.graph.state import EcommerceState
 
-def build_graph():
+
+def build_graph(product_graph,intent_classifier):
+
     graph = StateGraph(EcommerceState)
 
-    #add nodes 
-    graph.add_node("classify_request", classify_request)
-    graph.add_node("product", product_node)
-    graph.add_node("shopping", shopping_node)
-    graph.add_node("order", order_node)
-    graph.add_node("support", support_node)
-    graph.add_node("unknown", unknown_node)
+    # Nodes
+    graph.add_node(
+        "classify_request",
+        create_classify_request_node(intent_classifier),
+    )
+
+    graph.add_node(
+        "product",
+        create_product_node(product_graph),
+    )
+
+    graph.add_node(
+        "shopping",
+        shopping_node,
+    )
+
+    graph.add_node(
+        "order",
+        order_node,
+    )
+
+    graph.add_node(
+        "support",
+        support_node,
+    )
+
+    graph.add_node(
+        "unknown",
+        unknown_node,
+    )
 
     # START -> classifier
-    graph.add_edge(START, "classify_request")
+    graph.add_edge(
+        START,
+        "classify_request",
+    )
 
-    # Classifier -> router -> appropriate workflow
+    # Classifier -> router
     graph.add_conditional_edges(
         "classify_request",
         route_request,
@@ -38,7 +66,7 @@ def build_graph():
         },
     )
 
-    # Workflow nodes -> END
+    # Workflows -> END
     graph.add_edge("product", END)
     graph.add_edge("shopping", END)
     graph.add_edge("order", END)
