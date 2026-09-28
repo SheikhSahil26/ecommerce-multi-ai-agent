@@ -4,6 +4,7 @@ from ecommerce_ai.agents.product.graph import create_product_graph
 from ecommerce_ai.agents.shopping.graph import create_shopping_graph
 from ecommerce_ai.agents.order.graph import create_order_graph
 from ecommerce_ai.agents.support.agent import create_support_agent
+from ecommerce_ai.agents.unknown.agent import create_unknown_agent
 
 from ecommerce_ai.classifiers.intent_classifier import IntentClassifier
 
@@ -19,10 +20,10 @@ from ecommerce_ai.graph.nodes import (
     create_shopping_node,
     create_order_node,
     create_support_node,
+    create_unknown_node,
     order_node,
     supervisor_node,
     support_node,
-    unknown_node,
 )
 
 from ecommerce_ai.graph.routers import route_next_task
@@ -61,6 +62,7 @@ def build_graph(checkpointer=None, session=None):
     )
 
     support_graph = create_support_agent()
+    unknown_graph = create_unknown_agent()
 
 
     # --------------------------------------------------
@@ -123,7 +125,7 @@ def build_graph(checkpointer=None, session=None):
 
     graph.add_node(
         "unknown",
-        unknown_node,
+        create_unknown_node(unknown_graph),
     )
 
 
@@ -266,3 +268,10 @@ order_agent_graph = build_order_agent_graph()
 # ======================================================
 
 support_agent_graph = create_support_agent()
+
+
+# ======================================================
+# Unknown Intent Agent Graph
+# ======================================================
+
+unknown_agent_graph = create_unknown_agent()

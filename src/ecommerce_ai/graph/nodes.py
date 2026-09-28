@@ -242,8 +242,15 @@ def support_node(state: EcommerceState) -> dict:
     }
 
 
-def unknown_node(state: EcommerceState) -> dict:
-    return {
-        "messages": [AIMessage(content="I could not understand your request.")],
-        **complete_current_task(state),
-    }
+def create_unknown_node(unknown_graph):
+    async def unknown_node(state: EcommerceState):
+        messages = state.get("messages", [])
+        result = await unknown_graph.ainvoke({"messages": messages})
+        new_messages = result.get("messages", [])[len(messages):]
+        if not new_messages:
+            new_messages = [AIMessage(content=(
+                "I can help with products, your cart, checkout, orders, "
+                "or store support. What would you like to do?"
+            ))]
+        return {"messages": new_messages, **complete_current_task(state)}
+    return unknown_node
