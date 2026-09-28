@@ -28,6 +28,7 @@ def create_classify_request_node(intent_classifier):
         return {
             "original_query": query,
             "intents": intents,
+            "intent_confidence": result.confidence,
             "planned_tasks": tasks,
             "task_queue": tasks,
             "completed_tasks": [],
@@ -149,11 +150,89 @@ def create_shopping_node(shopping_graph):
 
     return shopping_node
 
+def create_order_node(order_graph):
+
+    async def order_node(state: EcommerceState):
+
+        # Run order agent
+        result = await order_graph.ainvoke(
+            {"messages": state.get("messages", [])}
+        )
+
+        # Current task
+        task_queue = state.get("task_queue", [])
+        current_task = state.get("current_task")
+
+        # Remove completed task
+        remaining_tasks = task_queue[1:]
+
+        completed_tasks = state.get(
+            "completed_tasks",
+            []
+        )
+
+        new_messages = result.get("messages", [])[len(state.get("messages", [])):]
+
+        return {
+            "messages": new_messages,
+            "task_queue": remaining_tasks,
+            "completed_tasks": [
+                *completed_tasks,
+                {
+                    **current_task,
+                    "status": "completed",
+                },
+            ],
+        }
+
+    return order_node
+
+
 def order_node(state: EcommerceState) -> dict:
     return {
         "messages": [AIMessage(content="Order workflow is not implemented yet.")],
         **complete_current_task(state),
     }
+
+
+def create_support_node(support_graph):
+
+    async def support_node(state: EcommerceState):
+
+        # Run support agent
+        result = await support_graph.ainvoke(
+            {"messages": state.get("messages", [])}
+        )
+
+        # Current task
+        task_queue = state.get("task_queue", [])
+        current_task = state.get("current_task")
+
+        # Remove completed task
+        remaining_tasks = task_queue[1:]
+
+        completed_tasks = state.get(
+            "completed_tasks",
+            []
+        )
+
+        new_messages = result.get("messages", [])[len(state.get("messages", [])):]
+        if not new_messages and result.get("grounded_answer"):
+            new_messages = [AIMessage(content=result["grounded_answer"])]
+
+        return {
+            "messages": new_messages,
+            "task_queue": remaining_tasks,
+            "completed_tasks": [
+                *completed_tasks,
+                {
+                    **current_task,
+                    "status": "completed",
+                },
+            ],
+        }
+
+    return support_node
 
 
 def support_node(state: EcommerceState) -> dict:

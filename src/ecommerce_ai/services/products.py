@@ -64,6 +64,39 @@ class ProductService:
         return results
 
     # ========================================================
+    # LIST ALL PRODUCTS
+    # ========================================================
+
+    async def list_all_products(self) -> list[ProductResult]:
+        rows = await self.repository.list_all_products()
+        return [
+            ProductResult(
+                id=product.id,
+                name=product.name,
+                brand=product.brand,
+                description=product.description,
+                rating=product.rating,
+                specifications=product.specifications or {},
+                category_id=category.id,
+                category_name=category.name,
+                variants=[
+                    ProductVariantResult(
+                        id=variant.id,
+                        sku=variant.sku,
+                        name=variant.name,
+                        price=variant.price,
+                        discount=variant.discount,
+                        stock_quantity=variant.stock_quantity,
+                        is_active=variant.is_active,
+                        specifications=variant.specifications or {},
+                    )
+                    for variant in variants
+                ],
+            )
+            for product, category, variants in rows
+        ]
+
+    # ========================================================
     # PRODUCT DETAILS
     # ========================================================
 

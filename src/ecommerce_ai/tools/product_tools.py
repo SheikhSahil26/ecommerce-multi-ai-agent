@@ -47,6 +47,20 @@ def create_product_tools(
         )
 
     # ========================================================
+    # LIST COMPLETE CATALOG
+    # ========================================================
+
+    @tool
+    async def list_all_products():
+        """
+        Return every product currently stored in the product database, with
+        category and variant details. Use this for broad catalog requests such
+        as "list me the products", "show all products", or "list every product
+        in the store". Do not ask the user to pick a category before calling it.
+        """
+        return await service.list_all_products()
+
+    # ========================================================
     # PRODUCT DETAILS
     # ========================================================
 
@@ -141,6 +155,7 @@ def create_product_tools(
 
     return [
         search_products,
+        list_all_products,
         get_product_details,
         check_product_availability,
         compare_products,

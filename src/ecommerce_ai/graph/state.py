@@ -23,6 +23,7 @@ class EcommerceState(TypedDict):
     # -------------------------
 
     intents: NotRequired[list[str]]
+    intent_confidence: NotRequired[float]
     """
     All intents detected for the current user request.
 

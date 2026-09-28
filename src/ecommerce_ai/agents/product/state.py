@@ -138,3 +138,6 @@ class ProductAgentState(MessagesState):
 
     agent_name: str
     agent_version: str | None
+
+    tool_call_count: NotRequired[int]
+    tool_limit_reached: NotRequired[bool]

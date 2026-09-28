@@ -125,6 +125,33 @@ class ProductRepository:
         return result.all()
 
     # ========================================================
+    # LIST ALL PRODUCTS
+    # ========================================================
+
+    async def list_all_products(
+        self,
+    ) -> list[tuple[Product, Category, list[ProductVariant]]]:
+        stmt = (
+            select(Product, Category, ProductVariant)
+            .join(Category, Category.id == Product.category_id)
+            .outerjoin(
+                ProductVariant,
+                ProductVariant.product_id == Product.id,
+            )
+            .order_by(Product.id, ProductVariant.id)
+        )
+        rows = (await self.session.execute(stmt)).all()
+
+        products: dict[int, tuple[Product, Category, list[ProductVariant]]] = {}
+        for product, category, variant in rows:
+            if product.id not in products:
+                products[product.id] = (product, category, [])
+            if variant is not None:
+                products[product.id][2].append(variant)
+
+        return list(products.values())
+
+    # ========================================================
     # GET PRODUCT DETAILS
     # ========================================================
 

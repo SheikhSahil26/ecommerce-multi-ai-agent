@@ -59,8 +59,18 @@ class ShoppingService:
                 "variant_name": variant.name,
                 "quantity": item.quantity,
                 "unit_price": str(variant.price),
+                "unit_discount": str(variant.discount),
+                "effective_unit_price": str(
+                    variant.price - variant.discount
+                ),
                 "line_total": str(
                     variant.price * item.quantity
+                ),
+                "discount_total": str(
+                    variant.discount * item.quantity
+                ),
+                "total_after_discount": str(
+                    (variant.price - variant.discount) * item.quantity
                 ),
             }
             for item, product, variant in rows

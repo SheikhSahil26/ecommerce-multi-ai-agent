@@ -71,13 +71,14 @@ The user wants to discover, search, browse, compare,
 or get information about products.
 
 shopping:
-The user wants to buy or purchase something, or perform
-a shopping action such as adding/removing/updating cart items,
-wishlist operations, or checkout.
+The user wants to manage their shopping cart or wishlist
+(such as adding items, removing items, updating quantities,
+viewing the cart, or wishlist operations).
 
 order:
-The user is asking about an existing order, shipment,
-delivery, or tracking.
+The user wants to place an order, checkout their cart,
+buy the items in their cart, or query about existing orders,
+shipments, delivery, or tracking.
 
 support:
 The user has a problem, complaint, damaged product,
@@ -272,6 +273,22 @@ class IntentClassifier:
             "latest order status",
             "my recent order",
             "my recent order status",
+            "last order",
+            "order history",
+            "past order",
+            "past orders",
+            "my orders",
+            "compare order",
+            "compare my order",
+            "cancel order",
+            "order details",
+            "place this order",
+            "place order",
+            "place my order",
+            "place the order",
+            "order the items in my cart",
+            "order my cart",
+            "checkout order",
         ]
 
         if any(
@@ -313,7 +330,17 @@ class IntentClassifier:
         # ====================================================
 
         product_phrases = [
+            "list me the products",
+            "list me products",
+            "list all products",
+            "list products",
+            "show all products",
+            "show me all products",
+            "show me the products",
             "show me products",
+            "show products",
+            "all products",
+            "available products",
             "show me laptops",
             "show me phones",
             "show me tvs",

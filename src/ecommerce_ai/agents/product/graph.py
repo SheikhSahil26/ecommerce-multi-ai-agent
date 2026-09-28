@@ -1,7 +1,6 @@
 from langchain_core.messages import SystemMessage
 
 from langgraph.graph import END, START, StateGraph
-from langgraph.prebuilt import ToolNode
 
 from ecommerce_ai.agents.product.agent import create_product_agent
 from ecommerce_ai.agents.product.prompts import (
@@ -9,6 +8,10 @@ from ecommerce_ai.agents.product.prompts import (
 )
 from ecommerce_ai.agents.product.state import ProductAgentState
 from ecommerce_ai.repositories.product_repository import ProductRepository
+from ecommerce_ai.tools.limited_tool_node import (
+    create_limited_tool_runner,
+    route_after_limited_tools,
+)
 
 
 def create_product_graph(
@@ -25,7 +28,7 @@ def create_product_graph(
     # Create Tool Node
     # --------------------------------
 
-    tool_node = ToolNode(tools)
+    tool_node = create_limited_tool_runner(tools)
 
     # --------------------------------
     # LLM Node
@@ -113,9 +116,10 @@ def create_product_graph(
     # Tool → LLM
     # --------------------------------
 
-    graph.add_edge(
+    graph.add_conditional_edges(
         "product_tools",
-        "product_llm",
+        route_after_limited_tools,
+        {"llm": "product_llm", "end": END},
     )
 
     # --------------------------------

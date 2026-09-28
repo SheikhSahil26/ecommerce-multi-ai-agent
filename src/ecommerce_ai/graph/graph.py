@@ -2,6 +2,8 @@ from langgraph.graph import END, START, StateGraph
 
 from ecommerce_ai.agents.product.graph import create_product_graph
 from ecommerce_ai.agents.shopping.graph import create_shopping_graph
+from ecommerce_ai.agents.order.graph import create_order_graph
+from ecommerce_ai.agents.support.agent import create_support_agent
 
 from ecommerce_ai.classifiers.intent_classifier import IntentClassifier
 
@@ -9,11 +11,14 @@ from ecommerce_ai.db.database import AsyncSessionLocal
 
 from ecommerce_ai.repositories.product_repository import ProductRepository
 from ecommerce_ai.repositories.shopping_repository import ShoppingRepository
+from ecommerce_ai.repositories.order_repository import OrderRepository
 
 from ecommerce_ai.graph.nodes import (
     create_classify_request_node,
     create_product_node,
     create_shopping_node,
+    create_order_node,
+    create_support_node,
     order_node,
     supervisor_node,
     support_node,
@@ -22,18 +27,19 @@ from ecommerce_ai.graph.nodes import (
 
 from ecommerce_ai.graph.routers import route_next_task
 from ecommerce_ai.graph.state import EcommerceState
-from ecommerce_ai.memory.checkpointer import checkpointer
 
-def build_graph():
+def build_graph(checkpointer=None, session=None):
 
     # --------------------------------------------------
     # Database / repositories
     # --------------------------------------------------
 
-    session = AsyncSessionLocal()
+    if session is None:
+        session = AsyncSessionLocal()
 
     product_repository = ProductRepository(session)
     shopping_repository = ShoppingRepository(session)
+    order_repository = OrderRepository(session)
 
 
     # --------------------------------------------------
@@ -48,6 +54,13 @@ def build_graph():
         shopping_repository,
         product_repository
     )
+
+    order_graph = create_order_graph(
+        order_repository,
+        shopping_repository,
+    )
+
+    support_graph = create_support_agent()
 
 
     # --------------------------------------------------
@@ -96,12 +109,16 @@ def build_graph():
 
     graph.add_node(
         "order",
-        order_node,
+        create_order_node(
+            order_graph
+        ),
     )
 
     graph.add_node(
         "support",
-        support_node,
+        create_support_node(
+            support_graph
+        ),
     )
 
     graph.add_node(
@@ -182,7 +199,9 @@ def build_graph():
     # Compile
     # --------------------------------------------------
 
-    return graph.compile(checkpointer=checkpointer)
+    if checkpointer is not None:
+        return graph.compile(checkpointer=checkpointer)
+    return graph.compile()
 
 
 # ======================================================
@@ -215,3 +234,35 @@ def build_shopping_agent_graph():
 
 
 shopping_agent_graph = build_shopping_agent_graph()
+
+
+# ======================================================
+# Order Agent Graph
+# ======================================================
+
+def build_order_agent_graph():
+
+    session = AsyncSessionLocal()
+
+    order_repository = OrderRepository(
+        session
+    )
+
+    shopping_repository = ShoppingRepository(
+        session
+    )
+
+    return create_order_graph(
+        order_repository,
+        shopping_repository,
+    )
+
+
+order_agent_graph = build_order_agent_graph()
+
+
+# ======================================================
+# Support Agent Graph
+# ======================================================
+
+support_agent_graph = create_support_agent()
