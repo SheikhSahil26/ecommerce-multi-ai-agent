@@ -30,9 +30,13 @@ class ProductService:
         request: ProductSearchRequest,
     ) -> list[ProductSearchResult]:
 
+        print(request,"this is request!!!!!")
+
         rows = await self.repository.search_products(
             request
         )
+
+        print(rows,"this are the rows in product service!!")
 
         results: list[ProductSearchResult] = []
 

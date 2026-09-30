@@ -122,6 +122,8 @@ class ProductRepository:
 
         result = await self.session.execute(stmt)
 
+        print(result.all())
+
         return result.all()
 
     # ========================================================
