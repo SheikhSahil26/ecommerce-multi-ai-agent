@@ -16,3 +16,7 @@ __pycache__/
 .coverage
 .mypy_cache/
 .ruff_cache/
+# Node / Frontend
+node_modules/
+*/node_modules/
+.npm
